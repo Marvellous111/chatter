@@ -16,6 +16,25 @@
     }
   }
 
+  .hljs {
+    color: #ABB2BF;
+  }
+  .hljs-keyword {
+    color: #C792EA;
+  }
+  .hljs-string {
+    color: #C3E88D;
+  }
+  .hljs-title {
+    color: #82AAFF;
+  }
+  .hljs-params {
+    color: #F78C6C;
+  }
+  // .hljs-title {
+  //   color: rgb(219, 156, 38);
+  // }
+
   /* Style code blocks */
   pre, code {
     background-color: #121212;
@@ -23,7 +42,6 @@
     letter-spacing: -0.2px;
     font-family: 'geistmono-regular';
     //font-family: 'Courier New', Courier, monospace;
-    color: #fafafa;
   }
 
   pre::selection, code::selection {
@@ -42,7 +60,7 @@
 
   /* Style inline code */
   :not(pre) > code {
-    color: #fafafa;
+    //color: #fafafa;
     background-color: #121212;
   }
 

@@ -1,17 +1,26 @@
 <script lang="ts" setup>
 import { Copy, GitBranchPlus, RotateCcw, Zap, Cpu, Clock2 } from 'lucide-vue-next';
 import { computed, defineComponent } from 'vue';
-import { marked } from 'marked';
+import { Marked } from 'marked';
+import { markedHighlight } from 'marked-highlight';
+import hljs from 'highlight.js';
 import DOMPurify from 'dompurify'
 
-
-// const md = marked.parse(test_md);
-// const md_sanitized = DOMPurify.sanitize();
+const marked = new Marked(
+  markedHighlight({
+	emptyLangClass: 'hljs',
+    langPrefix: 'hljs language-',
+    highlight(code, lang, info) {
+      const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+      return hljs.highlight(code, { language }).value;
+    }
+  })
+);
 
 const props = defineProps({
   content: {
     type: String,
-    default: `# Welcome to chatter`,
+    required: true,
   }
 });
 

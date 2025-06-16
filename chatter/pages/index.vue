@@ -7,6 +7,7 @@ interface Response {
 
 }
 
+
 const responses = ref<Response>
 const test_md=`# Welcome to docs4.dev
 
@@ -17,7 +18,7 @@ Code block:
 import {parseMarkdown} from '@nuxtjs/mdc/runtime'
 
 async function main(mdc: string) {
-  const ast = await parseMarkdown(mdc)
+  const ast = await parseMarkdown.check(mdc)
 
   return ast
 }
