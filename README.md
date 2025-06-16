@@ -5,6 +5,7 @@ The frontend (chatter) and the backend (backend) is here for contributors to go 
 The repo also features a BYOK feature where you can easily use your own keys for inference when you want.
 
 ## Chatter (Frontend)
+
 The frontend is written using nuxt. I got tired of the next alternatives. I think Nuxt is a really cool framework and needs more publicity here.
 You can fork the chatter folder if you want to contribute to the frontend alone for your favorite design additions.
 ---
