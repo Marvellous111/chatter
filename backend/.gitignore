@@ -1,0 +1,10 @@
+# Application environments
+.venv/
+
+# Logs
+.Logs
+logs/
+.log
+
+# Environment
+.env
