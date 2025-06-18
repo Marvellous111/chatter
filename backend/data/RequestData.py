@@ -4,8 +4,8 @@ from typing import Optional
 
 class QueryData(BaseModel):
   content: str
-  modelUsed: str
-  datetime: datetime
-  attachment_status: str
+  model_used: str
+  model_provider: str
+  attachment_status: bool
   websearch: bool
   deepreasoning: bool

@@ -28,12 +28,14 @@
   "packageManager": "pnpm@8.15.5+sha1.a58c038faac410c947dbdb93eb30994037d0fce2",
   "devDependencies": {
     "@geist-ui/icons": "^1.0.2",
+    "axios": "^1.10.0",
     "dompurify": "^3.2.6",
     "highlight.js": "^11.11.1",
     "marked": "^15.0.12",
     "marked-code-format": "^1.1.6",
     "marked-emoji": "^2.0.0",
     "marked-highlight": "^2.2.1",
-    "sass": "^1.89.1"
+    "sass": "^1.89.1",
+    "zod": "^3.25.67"
   }
 }

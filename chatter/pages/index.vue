@@ -1,52 +1,123 @@
 <script lang="ts" setup>
-import { ArrowUp, GitBranchPlus } from 'lucide-vue-next'
-import { ref } from 'vue';
+import { ArrowUp, GitBranchPlus, StopCircle } from 'lucide-vue-next'
+import { nextTick, onMounted, ref, watch } from 'vue';
+import { query, type Query, chat, type Chat } from '../interfaces/ChatSchema';
+import { useFetch } from '#app';
 
-interface Response {
-  content: string;
+useSeoMeta({
+  title: 'Chatter'
+})
 
+const query_input = ref("");
+
+const streamingResponse = ref(``);
+const isStreaming = ref(false);
+const error = ref<string|null>(null);
+
+var chats = ref<Chat[]>([]);
+
+
+// if (chat_messages.value?.length !== chat_responses.value?.length) {
+//   console.error("The message is not complete, hence we need to populate")
+// }
+
+async function send() {
+  streamingResponse.value = '';
+  isStreaming.value = true;
+  error.value = null;
+
+  if (query_input.value.length < 1) {
+    console.log("Please type in a query");
+    return
+  } 
+
+  const body = query.safeParse({
+    content: query_input.value,
+    model_used: "llama-3.1-8b-instant",
+    model_provider: "groq",
+    attachment_status: false,
+    websearch: false,
+    deepreasoning: false
+  });
+
+  try {
+    console.log("Sending to backend for hit");
+    const response = await fetch('/api/chat-stream', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body.data),
+    })
+    isStreaming.value = true
+    const reader = response.body?.getReader();
+    const decoder = new TextDecoder();
+    if (reader) {
+      while (true) {
+        const { done, value } = await reader!.read()
+        if (done) {
+          const newchat: Chat = {
+            content: query_input.value,
+            response: streamingResponse.value
+          }
+          chats.value.push(newchat)
+        }
+        const chunk = decoder.decode(value, {
+          stream: true
+        })
+        streamingResponse.value += chunk
+      }
+    }
+  }catch(error: any) {
+    console.log(error)
+  } finally {
+    query_input.value = "";
+    isStreaming.value = false;
+  }
+  const clearResponse = () => {
+    streamingResponse.value = ''
+    error.value = null
+  }
 }
-
-
-const responses = ref<Response>
-const test_md=`# Welcome to docs4.dev
-
-Paragraphs can but should not contain inline code \`const codeInline: string = 'highlighted code inline'\`{lang="ts"} with language prop.
-
-Code block:
-\`\`\` typescript [index.js] {1, 3 - 5} additional meta data
-import {parseMarkdown} from '@nuxtjs/mdc/runtime'
-
-async function main(mdc: string) {
-  const ast = await parseMarkdown.check(mdc)
-
-  return ast
-}
-\`\`\`
-
-> This is a quote in response.\n\nHere's some **bold** text and a list:\n- Item 1\n- Item 2
-`
-function send() {
-  return
-}
+const chatContainer = ref<HTMLElement|null>(null);
+watch(chats, async () => {
+  await nextTick()
+  if (chatContainer.value) {
+    chatContainer.value.scrollTo({
+      top: chatContainer.value.scrollHeight,
+      behavior: 'smooth'
+    })
+  }
+})
 
 </script>
 
 <template>
   <section class="chat-section">
-    <div class="chat-container">
-      <div class="user geist-regular">
-        Are black holes real?
+    <div class="chat-container" ref="chatContainer">
+      <div class="query-response" v-for="(chats, index) in chats" :key="index">
+        <div class="user geist-regular">
+          {{ chats.content }}
+        </div>
+        <ChatResponse :content="chats.response" />
       </div>
-      <ChatResponse :content="test_md" />
+      <div class="query-response" v-if="isStreaming">
+        <div class="user geist-regular">
+          {{ query_input }}
+        </div>
+        <ChatResponse :content="streamingResponse" />
+      </div>
     </div>
     <div class="outer-input-field">
       <div class="inner-input-field">
-        <textarea class="input-area geist-regular" placeholder="Type your message here..."></textarea>
+        <textarea class="input-area geist-regular" placeholder="Type your message here..." v-model="query_input" :disabled="isStreaming"></textarea>
         <section class="model-send-section">
-          <ChatModels />
-          <button class="send-button" @click="send">
+          <ChatModels /> 
+          <button class="send-button" @click="send" :disabled="isStreaming" v-if="isStreaming == false">
             <ArrowUp :size="24" absoluteStrokeWidth />
+          </button>
+          <button class="send-button" @click="send" :disabled="isStreaming" v-if="isStreaming == true">
+            <StopCircle :size="24" absoluteStrokeWidth />
           </button>
         </section>
       </div>
@@ -56,23 +127,23 @@ function send() {
 
 <style lang="scss" scoped>
 .chat-section::-webkit-scrollbar{
-  display: none;
-  background: none;
-  border: 1px solid white;
-  scrollbar-width: 5px;
-  color: rgba(18, 18, 18, 0.4);
+  width: 5px;
+}
+.chat-section::-webkit-scrollbar-track{
+  background: transparent;
+}
+.chat-section::-webkit-scrollbar-thumb{
+  background-color: #888;
+  border-radius: 4px;
+}
+.chat-section::-webkit-scrollbar-thumb:hover{
+  background-color: #555;
+  border-radius: 4px;
 }
 .chat-section {
-  scrollbar-width: 0px;
-  -ms-overflow-style: none;
-}
-
-.chat-container::-webkit-scrollbar {
-  display: none;
-}
-.chat-container {
-    scrollbar-width: 0px;
-  -ms-overflow-style: none;
+  scrollbar-width: thin;
+  scrollbar-color: #888 transparent;
+  scroll-behavior: smooth;
 }
 
 .chat-section {
@@ -84,7 +155,7 @@ function send() {
   flex-direction: column;
   align-items: center;
   overflow: hidden;
-  overflow-y: visible;
+  overflow-y: auto;
   padding: 0px 20px 20px 20px;
   .chat-container {
     color: #fafafa;
@@ -98,19 +169,28 @@ function send() {
     overflow-y: hidden;
     height: fit-content;
     //border: 1px solid;
-    .user {
-      align-self: flex-end;
+    .query-response {
+      position: relative;
       display: flex;
-      width: fit-content;
-      min-height: 18px;
-      justify-content: left;
-      align-items: center;
-      padding: 10px 15px;
-      border-radius: 10px;
-      background: rgba(128, 128, 128, 0.2);
-      border: 1px solid rgba(128, 128, 128, 0.1);
-      color: #fafafa;
-      font-size: 15px;
+      flex-direction: column;
+      gap: 20px;
+      height: 100%;
+      width: 95%;
+      z-index: 0;
+      .user {
+        align-self: flex-end;
+        display: flex;
+        width: fit-content;
+        min-height: 18px;
+        justify-content: left;
+        align-items: center;
+        padding: 10px 15px;
+        border-radius: 10px;
+        background: rgba(128, 128, 128, 0.2);
+        border: 1px solid rgba(128, 128, 128, 0.1);
+        color: #fafafa;
+        font-size: 15px;
+      }
     }
     
   }
@@ -176,6 +256,7 @@ function send() {
           display: flex;
           align-items: center;
           justify-content: center;
+          cursor: pointer;
         }
       }
     }

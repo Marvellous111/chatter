@@ -5,6 +5,12 @@ export default defineNuxtConfig({
   devtools: {
     enabled: false
   },
+
+  runtimeConfig: {
+    server: {
+      backend_url: process.env.NUXT_SERVER_BACKEND_URL
+    }
+  },
   
   css: [
     "~/assets/styles/main.scss",
