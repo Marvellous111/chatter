@@ -11,7 +11,6 @@ export default defineEventHandler(async (event) => {
     })
   }
   const config = useRuntimeConfig().server;
-  console.log("Nuxt API hit");
   const body = await readBody(event);
 
   const backend_url = config.backend_url;
@@ -37,7 +36,7 @@ export default defineEventHandler(async (event) => {
       }
     )
     const response = serverResponse.data;
-    console.log(response)
+
 
     const readableStream = new ReadableStream({
       async start(controller) {
@@ -58,6 +57,7 @@ export default defineEventHandler(async (event) => {
         response.destroy()
       }
     })
+    console.log(readableStream)
     return readableStream
   } catch(error: any) {
     console.error("Server streaming error: ", error)

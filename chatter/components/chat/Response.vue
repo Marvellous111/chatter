@@ -63,7 +63,7 @@ const renderedMarkdown = computed(() => marked.parse(props.content))
 .chatter {
   text-align: left;
   font-size: 15px;
-  margin-bottom: 26%;
+  //margin-bottom: 26%;
   display: flex;
   flex-direction: column;
   row-gap: 20px;

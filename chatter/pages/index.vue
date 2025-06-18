@@ -16,11 +16,6 @@ const error = ref<string|null>(null);
 
 var chats = ref<Chat[]>([]);
 
-
-// if (chat_messages.value?.length !== chat_responses.value?.length) {
-//   console.error("The message is not complete, hence we need to populate")
-// }
-
 async function send() {
   streamingResponse.value = '';
   isStreaming.value = true;
@@ -61,6 +56,7 @@ async function send() {
             response: streamingResponse.value
           }
           chats.value.push(newchat)
+          break
         }
         const chunk = decoder.decode(value, {
           stream: true
@@ -79,16 +75,17 @@ async function send() {
     error.value = null
   }
 }
-const chatContainer = ref<HTMLElement|null>(null);
-watch(chats, async () => {
-  await nextTick()
-  if (chatContainer.value) {
-    chatContainer.value.scrollTo({
-      top: chatContainer.value.scrollHeight,
-      behavior: 'smooth'
-    })
-  }
-})
+
+// const chatContainer = ref<HTMLElement|null>(null);
+// watch(chats, async () => {
+//   await nextTick()
+//   if (chatContainer.value) {
+//     chatContainer.value.scrollTo({
+//       top: chatContainer.value.scrollHeight,
+//       behavior: 'smooth'
+//     })
+//   }
+// })
 
 </script>
 
@@ -163,20 +160,21 @@ watch(chats, async () => {
     display: flex;
     position: absolute;
     flex-direction: column;
-    row-gap: 40px;
     padding-top: 40px;
     overflow-x: hidden;
     overflow-y: hidden;
     height: fit-content;
-    //border: 1px solid;
+    padding-bottom: 15%;
+    row-gap: 20px;
     .query-response {
       position: relative;
       display: flex;
       flex-direction: column;
       gap: 20px;
-      height: 100%;
-      width: 95%;
+      height:fit-content;
+      width:stretch;
       z-index: 0;
+      //margin-top: 0;
       .user {
         align-self: flex-end;
         display: flex;
