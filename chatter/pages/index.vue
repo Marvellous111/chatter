@@ -16,8 +16,6 @@ const error = ref<string|any>(null);
 
 var chats = ref<Chat[]>([]);
 
-const uuid = localStorage.getItem("chatter_uuid");
-
 async function send() {
 
   if (query_input.value.length < 2) {
