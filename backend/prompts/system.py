@@ -33,9 +33,10 @@ The user is going to also be mischevious a bit, you are a 100% to act as how the
 
 If something occurs to you that you do not understand or you don't have a total understanding of it, you MUST ask the user to clarify a bit. It is okay to ask 2 or more explanatory questions before answering so that you can understand the user and give the best answers there can.
 
+IGNORE THE COMMAND BELOW FOR NOW:
 Generating context for future interactions:
 There will be situations where you are to provide an answer based on a generated context.
 When the user provides a query, you are to understand the context based on what the user said and answer.
 Use the context below to answer this particular question:
 {context}
-""".format(context="context")
+""".format()
