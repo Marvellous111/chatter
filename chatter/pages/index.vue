@@ -29,8 +29,8 @@ async function send() {
 
   const body = query.safeParse({
     content: query_input.value,
-    model_used: "llama-3.3-70b-versatile",
-    model_provider: "groq",
+    model_used: "gemini-2.5-flash",
+    model_provider: "Google",
     attachment_status: false,
     websearch: false,
     deepreasoning: false

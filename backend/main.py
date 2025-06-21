@@ -7,7 +7,8 @@ import uuid
 from typing import Dict
 
 from data.RequestData import QueryData
-from utils.GetResponse import SendResponse
+from utils.Groq.GetResponseGroq import SendGroqResponse
+from utils.Google.GetResponseGoogle import SendGeminiResponse
 # from utils.RateLimiter import rate_limiter
 
 
@@ -34,8 +35,6 @@ def generate_id():
   }
   
 
-
-
 @app.post("/")
 async def query(query: QueryData):
   """Get response of user query from a select model
@@ -43,14 +42,24 @@ async def query(query: QueryData):
   Returns:
       str: A string of text from the model
   """
-  return StreamingResponse(
-    SendResponse(query),
-    media_type="text/plain",
-    headers= {
-      "Cache-Control": "no-cache",
-      "Connection": "keep-alive",
-    }
-  )
+  if query.model_provider.lower() == "groq":
+    return StreamingResponse(
+      SendGroqResponse(query),
+      media_type="text/plain",
+      headers= {
+        "Cache-Control": "no-cache",
+        "Connection": "keep-alive",
+      }
+    )
+  elif query.model_provider.lower() == "google":
+    return StreamingResponse(
+      SendGeminiResponse(query),
+      media_type="text/plain",
+      headers= {
+        "Cache-Control": "no-cache",
+        "Connection": "keep-alive",
+      }
+    )
 
 if __name__ == '__main__':
   import uvicorn
