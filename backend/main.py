@@ -8,7 +8,7 @@ from typing import Dict
 
 from data.RequestData import QueryData
 from utils.GetResponse import SendResponse
-from utils.RateLimiter import rate_limiter
+# from utils.RateLimiter import rate_limiter
 
 
 app = FastAPI()
