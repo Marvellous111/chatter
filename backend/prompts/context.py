@@ -11,4 +11,4 @@ When you want to add context to an existing context bank, it will be something l
 ADD: You are to add lines of coontext to the already existing context bank.
 TWEAK: You are to change certain things in the context bank or everything (if the need arises for that)
 REMOVE: You are to remove certain things that are irrelevant or solved in the context bank.
-""".format()
+"""

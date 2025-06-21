@@ -39,4 +39,4 @@ There will be situations where you are to provide an answer based on a generated
 When the user provides a query, you are to understand the context based on what the user said and answer.
 Use the context below to answer this particular question:
 {context}
-""".format()
+"""
