@@ -16,6 +16,15 @@ export default defineNuxtConfig({
     "~/assets/styles/main.scss",
     "~/assets/styles/markdown.scss"
   ],
+  vite: {
+    css: {
+      preprocessorOptions: {
+        scss: {
+          additionalData: `@use "@/assets/styles/media" as *;`,
+        }
+      }
+    }
+  },
 
   modules: [
     //'@nuxt/eslint',

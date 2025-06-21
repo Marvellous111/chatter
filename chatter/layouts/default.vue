@@ -1,12 +1,70 @@
 <script lang="ts" setup>
-import { PanelRight, GitBranchPlus, Trash2 } from 'lucide-vue-next'
+import { PanelRight, GitBranchPlus, Trash2, LogIn, Search, Plus } from 'lucide-vue-next'
+import { useRouter } from 'vue-router';
+import { onMounted, ref } from 'vue';
+
+const router = useRouter();
+
+function moveToSignin() {
+  router.push('/auth/')
+}
+
+const sidebar = ref<HTMLElement|null>(null);
+const mainbody = ref<HTMLElement|null>(null);
+const bodyButtonContainer = ref<HTMLElement|null>(null);
+
+const hideSidebar = () => {
+  if (!sidebar.value) return
+  if (!mainbody.value) return
+  if (!bodyButtonContainer.value) return
+  sidebar.value.style.transform = "translateX(-30px)";
+  sidebar.value.style.opacity = "0";
+  sidebar.value.style.visibility = "hidden"
+  sidebar.value.style.width = "0";
+  sidebar.value.style.paddingLeft = "0";
+  sidebar.value.style.paddingRight = "0";
+  sidebar.value.style.transition = "width 0.9s ease, visibility 0.4s ease, opacity 0.4s ease, translate 0.7s ease, padding 0.9s ease";
+  mainbody.value.style.width = "stretch";
+  bodyButtonContainer.value.style.visibility = "visible";
+  bodyButtonContainer.value.style.opacity = "1";
+}
+const showSidebar = () => {
+  if (!sidebar.value) return
+  if (!mainbody.value) return
+  if (!bodyButtonContainer.value) return
+  sidebar.value.style.transform = "translateX(0)";
+  sidebar.value.style.opacity = "1";
+  sidebar.value.style.visibility = "visible"
+
+  if (window.innerWidth >= 1024) {
+    sidebar.value.style.width = "20vw";
+  } else if(window.innerWidth <= 767) {
+    sidebar.value.style.width = "55vw";
+  } else if (window.innerWidth >= 768 && window.innerWidth <= 1023) {
+    sidebar.value.style.width = "30vw";
+  }
+
+  sidebar.value.style.paddingLeft = "20px";
+  sidebar.value.style.paddingRight = "20px";
+  sidebar.value.style.transition = "width 0.6s ease, visibility 1.0s ease-in, opacity 1.0s ease-in, translate 1.0s ease, padding 0.7s ease";
+  mainbody.value.style.width = "stretch";
+  bodyButtonContainer.value.style.visibility = "hidden";
+  bodyButtonContainer.value.style.opacity = "0";
+}
+
+// onMounted(() => {
+//   if (window.innerWidth <= 767) {
+//     hideSidebar()
+//   }
+// })
+
 </script>
 
 <template>
   <section class="layout-section">
-    <nav class="sidebar">
+    <nav class="sidebar" ref="sidebar">
       <div class="logo-expand-container">
-        <div class="ec-button">
+        <div class="ec-button" @click="hideSidebar">
           <PanelRight :size="18" absoluteStrokeWidth />
         </div>
         <h2 class="geist-medium">Chatter</h2>
@@ -27,8 +85,23 @@ import { PanelRight, GitBranchPlus, Trash2 } from 'lucide-vue-next'
           </div>
         </NuxtLink>
       </div>
+      <NuxtLink to='/auth' class="signin-button">
+        <LogIn :size="16" absoluteStrokeWidth />
+        <span class="geist-medium">Login</span>
+      </NuxtLink>
     </nav>
-    <main class="body-main">
+    <main class="body-main" ref="mainbody">
+      <div class="body-button-containers" ref="bodyButtonContainer">
+        <div class="transparent-icon-white" @click="showSidebar">
+          <PanelRight :size="16" absoluteStrokeWidth />
+        </div>
+        <div class="transparent-icon-white" @click="hideSidebar">
+          <Search :size="16" absoluteStrokeWidth />
+        </div>
+        <div class="transparent-icon-white" @click="hideSidebar">
+          <Plus :size="16" absoluteStrokeWidth />
+        </div>
+      </div>
       <slot />
     </main>
   </section>
@@ -36,6 +109,7 @@ import { PanelRight, GitBranchPlus, Trash2 } from 'lucide-vue-next'
 
 <style lang="scss" scoped>
 .layout-section {
+  position: relative;
   height: 100vh;
   background: #121212;
   display: flex;
@@ -49,6 +123,31 @@ import { PanelRight, GitBranchPlus, Trash2 } from 'lucide-vue-next'
     padding: 20px;
     row-gap: 15px;
     color: white;
+    transition: width 0.9s ease, visibility 0.4s ease, opacity 0.4s ease, translate 0.7s ease, padding 0.9s ease; 
+    @include responsive(mobile) {
+      position: fixed;
+      top: 0;
+      z-index: 80;
+      width: 0;
+      visibility: hidden;
+      opacity: 0;
+      transform: translateX(-30px);
+      padding-left: 0;
+      padding-right: 0;
+      background: #121212;
+    }
+    @include responsive(tablet) {
+      position: fixed;
+      top: 0;
+      z-index: 80;
+      width: 0;
+      visibility: hidden;
+      opacity: 0;
+      transform: translateX(-30px);
+      padding-left: 0;
+      padding-right: 0;
+      background: #121212;
+    }
     .logo-expand-container {
       display: flex;
       //border: 1px solid white;
@@ -67,6 +166,7 @@ import { PanelRight, GitBranchPlus, Trash2 } from 'lucide-vue-next'
         justify-content: center;
         background: inherit;
         border-radius: 7.5px;
+        cursor: pointer;
       }
       h2 {
         margin: 0;
@@ -105,8 +205,8 @@ import { PanelRight, GitBranchPlus, Trash2 } from 'lucide-vue-next'
       display: flex;
       flex-direction: column;
       width: stretch;
-      height: fit-content;
-      max-height: stretch;
+      flex-grow: 1;
+      //max-height: 100%;
       overflow-y: visible;
       overflow-x: hidden;
       scrollbar-width: 0px;
@@ -169,20 +269,67 @@ import { PanelRight, GitBranchPlus, Trash2 } from 'lucide-vue-next'
         }
       }
     }
+    .signin-button {
+      width: stretch;
+      height: 22px;
+      display: flex;
+      border: 0;
+      outline: 0;
+      text-decoration: none;
+      background: inherit;
+      align-items: center;
+      justify-content: left;
+      border-radius: 7.5px;
+      padding: 15px 15px 15px 15px;
+      column-gap: 10px;
+      color: #fafafa;
+      transition: background 0.2s ease-in;
+      span {
+        font-size: 16px;
+      }
+    }
+    .signin-button:hover {
+      background: rgba(128, 128, 128, 0.1);
+    }
   }
   .body-main {
-    max-width: 97vw;
-    max-height: 99vh;
+    //max-height: 98vh;
     width: stretch;
-    height: 98vh;
+    height: stretch;
+    margin-top: 2vh;
     margin-right: 1vw;
+    margin-left: 1vw;
     border-radius: 7.5px 7.5px 0px 0px;
     background: #1a1a1a;
     display: flex;
     justify-content: center;
     align-items: center;
     position: relative;
-    //border: 1px solid white;
+    transition: all 0.5s ease;
+    @include responsive(tablet) {
+      margin-top: 1vh;
+    }
+    .body-button-containers {
+      opacity: 0;
+      visibility: hidden;
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      display: flex;
+      border-radius: 10px;
+      background: #121212;
+      z-index: 78;
+      padding: 5px;
+      transition: all 0.5s ease;
+      @include responsive(mobile) {
+        opacity: 1;
+        visibility: visible;
+      }
+      @include responsive(tablet) {
+        opacity: 1;
+        visibility: visible;
+      }
+    }
   }
 }
 </style>

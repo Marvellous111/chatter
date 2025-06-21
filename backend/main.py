@@ -2,11 +2,13 @@ from fastapi.responses import StreamingResponse
 from fastapi import FastAPI, Body
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.concurrency import run_in_threadpool
+import uuid
 
 from typing import Dict
 
 from data.RequestData import QueryData
 from utils.GetResponse import SendResponse
+from utils.RateLimiter import rate_limiter
 
 
 app = FastAPI()
@@ -23,6 +25,15 @@ app.add_middleware(
   allow_methods=["*"],
   allow_headers=["*"]
 )
+
+@app.get("/generate-unsignedid")
+def generate_id():
+  user_id = str(uuid.uuid4())
+  return {
+    "uuid": user_id
+  }
+  
+
 
 
 @app.post("/")

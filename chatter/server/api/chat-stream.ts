@@ -4,7 +4,7 @@ import type { IncomingMessage, ServerResponse } from 'http';
 
 export default defineEventHandler(async (event) => {
 
-  if (getMethod(event) !== 'POST') {
+  if (event.method !== 'POST') {
     throw createError({
       statusCode: 405,
       statusMessage: 'Method Not Allowed'
@@ -23,8 +23,7 @@ export default defineEventHandler(async (event) => {
 
   try {
     const controller = new AbortController();
-    console.log('Send to fastapi for hit')
-    console.log('Body sent for hit: ', body)
+    console.log(`${event.method} request for chat response to server`)
     const serverResponse = await axios.post(`${backend_url}`,
       body,
       {
@@ -32,7 +31,7 @@ export default defineEventHandler(async (event) => {
         headers: {
           'Accept': 'text/plain'
         },
-        timeout: 30000,
+        timeout: 100000,
       }
     )
     const response = serverResponse.data;

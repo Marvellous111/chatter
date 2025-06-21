@@ -1,0 +1,1 @@
+// const uuid = localStorage.getItem('chatter_uuid')
