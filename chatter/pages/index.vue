@@ -1,27 +1,33 @@
 <script lang="ts" setup>
 import { ArrowUp, GitBranchPlus, StopCircle } from 'lucide-vue-next'
-import { nextTick, onMounted, ref, watch } from 'vue';
-import { query, type Query, chat, type Chat } from '../interfaces/ChatSchema';
-import { useFetch } from '#app';
+import { computed, nextTick, onMounted, ref, watch } from 'vue';
+import { useChatStore } from '@/stores/chatstore';
+import { query } from '../interfaces/ChatSchema';
+// import { useFetch } from '#app';
 
 useSeoMeta({
-  title: 'Chatter'
+  title: 'Clarity0'
 })
+
+const chatstore = useChatStore();
 
 const query_input = ref("");
 
 const streamingResponse = ref(``);
 const isStreaming = ref(false);
+const rate_limit = ref<string|null>(null);
+
+
 const error = ref<string|any>(null);
 
-var chats = ref<Chat[]>([]);
-
-async function send() {
-
+const send = async() => {
   if (query_input.value.length < 2) {
     console.log("Please type in a query");
     return
-  } 
+  }
+
+  const rate_limit_id = localStorage.getItem("chatter_uuid");
+  if (!rate_limit_id) return
 
   streamingResponse.value = '';
   isStreaming.value = true;
@@ -42,6 +48,7 @@ async function send() {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'x-ratelimit-id': rate_limit_id
       },
       body: JSON.stringify(body.data),
     })
@@ -50,17 +57,28 @@ async function send() {
       error.value = response
       return
     }
+    const rate_limit_count = response.headers.get("x-ratelimit-remaining");
+    if (rate_limit_count) {
+      console.log("RateLimit count is: ", rate_limit_count);
+      localStorage.setItem("chatter_rate_limit_count", rate_limit_count)
+      rate_limit.value = localStorage.getItem("chatter_rate_limit_count") // This will be stored?
+    } else {
+      console.log("No rate limit header found")
+      return
+    }
     const reader = response.body?.getReader();
     const decoder = new TextDecoder();
     if (reader) {
       while (true) {
         const { done, value } = await reader!.read()
         if (done) {
-          const newchat: Chat = {
-            content: query_input.value,
-            response: streamingResponse.value
-          }
-          chats.value.push(newchat)
+          chatstore.AddChat(query_input.value, streamingResponse.value);
+          // const newchat: Chat = {
+          //   content: query_input.value,
+          //   response: streamingResponse.value
+          // }
+          // chats.value.push(newchat)
+          query_input.value = "";
           break
         }
         const chunk = decoder.decode(value, {
@@ -75,7 +93,7 @@ async function send() {
   } finally {
     isStreaming.value = false;
     if (error.value) return
-    query_input.value = "";
+    //query_input.value = "";
   }
   const clearResponse = () => {
     streamingResponse.value = ''
@@ -83,10 +101,13 @@ async function send() {
   }
 }
 
+var chats = computed(() => chatstore.getChats);
+
 const chatContainer = ref<HTMLElement|null>(null);
 watch(chats, async () => {
   await nextTick()
   if (chatContainer.value) {
+    console.log("Chat container scroll height is: ", chatContainer.value.scrollHeight);
     chatContainer.value.scrollTo({
       top: chatContainer.value.scrollHeight,
       behavior: 'smooth'
@@ -117,6 +138,9 @@ const resizeTextArea = () => {
 }
 
 onMounted(() => {
+  if (localStorage.getItem("chatter_rate_limit_count")) {
+    rate_limit.value = localStorage.getItem("chatter_rate_limit_count")
+  }
   resizeTextArea()
 })
 </script>
@@ -139,7 +163,7 @@ onMounted(() => {
     </div>
     <div class="outer-input-field" ref="outerField">
       <div class="rate-limit" ref="ratelimit" :style="{ bottom: `${gapHeight}px`, width: `${outerWidth-15}px` }">
-        <ChatRateLimit />
+        <ChatRateLimit :rate="rate_limit" v-if="rate_limit" />
       </div>
       <div class="inner-input-field">
         <textarea class="input-area geist-regular" ref="textarea" @input="resizeTextArea" placeholder="Type your message here..." v-model="query_input" :disabled="isStreaming"></textarea>

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import { onMounted } from "vue"
+import { onMounted, ref } from "vue"
 
-var uuid = "";
+var uuid = ref<string|null>(null);
 
 const generateUUID = async () => {
   if (localStorage.getItem("chatter_uuid")) {
@@ -18,23 +18,29 @@ const generateUUID = async () => {
     }
     
     const reader = response.body?.getReader();
-    console.log(`Response is: ${reader}`)
     const decoder = new TextDecoder();
     if (reader) {
       const { done, value } = await reader!.read();
       const uuidchunk = decoder.decode(value)
-      uuid = uuidchunk
+      uuid.value = uuidchunk
     }
-    console.log(uuid)
-    localStorage.setItem("chatter_uuid", uuid);
-    console.log("Localstorage uuid set")
+    if (uuid.value) {
+      localStorage.setItem("chatter_uuid", uuid.value);
+      console.log("Localstorage uuid set")
+    } else {
+      console.log("Localstorage cannot be set")
+      return
+    }
   }catch(error) {
     console.log(error)
   }
 }
 
 onMounted(() => {
-  generateUUID()
+  if (!localStorage.getItem("chatter_uuid")) {
+    console.log("Generating uuid")
+    generateUUID()
+  }
 })
 </script>
 

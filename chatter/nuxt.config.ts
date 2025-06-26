@@ -34,5 +34,6 @@ export default defineNuxtConfig({
     //'@nuxt/scripts',
     //'@nuxt/content',
     '@pinia/nuxt',
+    'pinia-plugin-persistedstate/nuxt',
   ]
 })

@@ -1,10 +1,16 @@
 <script lang="ts" setup>
 var rate = 10;
+const props = defineProps({
+  rate: {
+    type: String,
+    required: true,
+  }
+});
 </script>
 
 <template>
   <div class="rate-limit-container">
-    <span class="rate-limit-text geist-regular">You have <text class="geist-medium"> {{ rate }} </text> messages left <NuxtLink to="/auth" class="rate-limit-strong geist-medium">Sign in</NuxtLink> to increase the message limit</span>
+    <span class="rate-limit-text geist-regular">You have <text class="geist-medium"> {{ props.rate }} </text> messages left <NuxtLink to="/auth" class="rate-limit-strong geist-medium">Sign in to increase the message limit</NuxtLink></span>
   </div>
 </template>
 

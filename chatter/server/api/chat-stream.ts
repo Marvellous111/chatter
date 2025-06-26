@@ -1,4 +1,4 @@
-import { defineEventHandler } from 'h3';
+import { defineEventHandler, getRequestHeaders, setResponseHeaders } from 'h3';
 import axios from 'axios';
 import type { IncomingMessage, ServerResponse } from 'http';
 
@@ -12,14 +12,10 @@ export default defineEventHandler(async (event) => {
   }
   const config = useRuntimeConfig().server;
   const body = await readBody(event);
+  const header = getRequestHeaders(event);
+  const token = header["x-ratelimit-id"]
 
   const backend_url = config.backend_url;
-
-  setHeaders(event, {
-    'Cache-Control': 'no-cache',
-    'Connection': 'keep-alive',
-    'Transfer-Encoding': 'Chunked'
-  })
 
   try {
     const controller = new AbortController();
@@ -29,12 +25,23 @@ export default defineEventHandler(async (event) => {
       {
         responseType: 'stream',
         headers: {
-          'Accept': 'text/plain'
+          'Accept': 'text/plain',
+          'x-ratelimit-id': token,
         },
         timeout: 100000,
       }
     )
     const response = serverResponse.data;
+    // if (!serverResponse) return
+    const rate_header = serverResponse.headers["x-ratelimit-remaining"];
+    console.log("Rate limit is: ", rate_header);
+    
+    setResponseHeaders(event, {
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive',
+      'Transfer-Encoding': 'Chunked',
+      'x-ratelimit-remaining': rate_header
+    })
 
 
     const readableStream = new ReadableStream({

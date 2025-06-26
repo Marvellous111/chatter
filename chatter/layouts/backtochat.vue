@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ArrowLeft } from 'lucide-vue-next';
+import { ArrowLeft, Settings2 } from 'lucide-vue-next';
 
 
 const router = useRouter();
@@ -18,7 +18,7 @@ function backToChat() {
       </button>
       <div class="theme-signin-container">
         <button class="theme-icon transparent-button-white">
-          <span>T</span>
+          <Settings2 :size="16" absoluteStrokeWidth />
         </button>
         <button class="transparent-button-white">
           <span class="geist-regular">Sign up</span>

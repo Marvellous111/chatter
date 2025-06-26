@@ -64,7 +64,7 @@ function signin() {
     padding: 7.5px;
     border-radius: 12.5px;
     align-items: center;
-    margin-top: -10%;
+    margin-top: -20%;
     .google-span {
       color: #fafafa;
       text-align: center;
